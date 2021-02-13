@@ -15,5 +15,11 @@ ADHD_part2_path = "/data/ADHD_part2/"
 adhd_part1_paths = [ADHD_part1_path+path for path in os.listdir(ADHD_part1_path)]
 adhd_part2_paths = [ADHD_part2_path+path for path in os.listdir(ADHD_part2_path)]
 
+# Opens the files into numpy arrays
 adhd_part1_data = [load_mat(path) for path in adhd_part1_paths]
 adhd_part2_data = [load_mat(path) for path in adhd_part2_paths]
+
+print('\n\n\n')
+for line in adhd_part1_data:
+    print(line)
+    exit(0)
