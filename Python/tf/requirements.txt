@@ -1,0 +1,8 @@
+tensorflow
+tensorflow_addons
+tensorflow_probability
+torch
+torchvision
+numpy
+pandas
+sklearn

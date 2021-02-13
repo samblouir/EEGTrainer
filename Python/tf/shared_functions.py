@@ -11,7 +11,7 @@ import tensorflow_probability as tfp
 
 
 # channels 3, 4, 5, 6, 13, and 14
-def load_mat(in_path: str, standardize: bool = False, channel_indices=None) -> np.ndarray:
+def load_mat(in_path: str, standardize: bool = False, channel_indices=None, window_size: int = 3) -> np.ndarray:
     if channel_indices is None:
         channel_indices = [3, 4, 5, 6, 13, 14]
 
@@ -23,15 +23,36 @@ def load_mat(in_path: str, standardize: bool = False, channel_indices=None) -> n
     loaded_mat = loaded_mat[path]
 
     loaded_mat = list(loaded_mat)
+    # loaded_mat = np.array(loaded_mat)[:-(len(loaded_mat)%window_size)]
+    loaded_mat = np.array(loaded_mat)
+    loaded_mat = loaded_mat[:6]
+
+    print(f"load_mat(): {path}.shape = {loaded_mat.shape}, carve = {(len(loaded_mat)%window_size)}")
 
     # Grab the relevant indices
     return_list = []
-    for index, row in enumerate(loaded_mat):
-        return_list = np.array([row[indice] for indice in channel_indices])
+    triplets = []
+    # return_list = np.array_split(loaded_mat, window_size)
+
+    for index, row in enumerate(loaded_mat[:-window_size]):
+
+        curr = np.array([row[indice] for indice in channel_indices])
+        triplets.append(curr)
+        if len(triplets) == 3:
+            # print(f"index == {index}")
+            # print(f"triplets == {triplets}")
+
+            return_list.append(np.array(triplets))
+            # print(f"return_list == {return_list}")
+            # print(f"return_list.shape == {return_list.shape}")
+            triplets.clear()
+
+            # exit()
 
     if standardize:
         return_list = standardize_data(return_list)
 
+    return_list = np.array(return_list)
     return return_list
 
 
