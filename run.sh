@@ -8,6 +8,6 @@ sudo docker run -it --gpus 1 \
 		-e HOST_PERMS="$(id -u):$(id -g)" \
 		--network=host \
 		--rm zeusids/zeusids python $EEGTrainer_path/Python/tf \
-		|| exit 1
+		|| docker pull zeusids/zeusids:latest
 
 exit 0		
