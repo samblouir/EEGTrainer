@@ -19,6 +19,7 @@ adhd_part2_paths = [ADHD_part2_path+path for path in os.listdir(ADHD_part2_path)
 adhd_part1_data = [load_mat(path) for path in adhd_part1_paths]
 adhd_part2_data = [load_mat(path) for path in adhd_part2_paths]
 
+# Test the file prints
 print('\n\n\n')
 for line in adhd_part1_data:
     print(line)
