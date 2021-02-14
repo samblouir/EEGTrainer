@@ -93,7 +93,7 @@ def train_loop(data, batch_size=3):
 
 
 print('Training...')
-epochs = 100000
+epochs = 5000
 for epoch in range(epochs):
     train_loop(adhd_part1_data, batch_size=batch_size)
     if epoch % 1000 == 0:
@@ -111,5 +111,8 @@ for epoch in range(epochs):
             f" \t reconstruction loss on control == {control_loss_value:0.2f}",
             sep='', end='', flush=True,
         )
+
+AE.encoder.save("/EEGTrainer/saved_models/encoder_2D")
+AE.decoder.save("/EEGTrainer/saved_models/decoder_2D")
 
 exit(0)
