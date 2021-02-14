@@ -14,6 +14,19 @@ import tensorflow_addons as tfa
 
 from shared_functions import load_mat
 
+convert_model = True
+if convert_model:
+    encoder_converter = tf.lite.TFLiteConverter.from_saved_model("/EEGTrainer/saved_models/encoder_2D")
+    decoder_converter = tf.lite.TFLiteConverter.from_saved_model("/EEGTrainer/saved_models/decoder_2D")
+    encoder_model = encoder_converter.convert()
+    decoder_model = decoder_converter.convert()
+    with open('/EEGTrainer/saved_models/encoder.tflite', 'wb') as f:
+        f.write(encoder_model)
+    with open('/EEGTrainer/saved_models/decoder.tflite', 'wb') as f:
+        f.write(encoder_model)
+    print('\nFinished saving models!')
+    exit()
+
 ADHD_part1_path = "/input_data/ADHD_part1/"
 control_part1_path = "/input_data/Control_part1/"
 
@@ -119,4 +132,5 @@ for epoch in range(epochs):
 AE.encoder.save("/EEGTrainer/saved_models/encoder_2D")
 AE.decoder.save("/EEGTrainer/saved_models/decoder_2D")
 
+print('\nFinished training!')
 exit(0)
