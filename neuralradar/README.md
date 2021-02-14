@@ -1,6 +1,6 @@
 # neuralradar
 
-Harvard 2021 EEG-based Focus Trainer
+EEG Attention Training
 
 ## Getting Started
 
