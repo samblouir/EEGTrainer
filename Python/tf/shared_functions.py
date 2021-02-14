@@ -24,10 +24,12 @@ def load_mat(in_path: str, standardize: bool = False, channel_indices=None, wind
 
     loaded_mat = list(loaded_mat)
     # loaded_mat = np.array(loaded_mat)[:-(len(loaded_mat)%window_size)]
-    loaded_mat = np.array(loaded_mat)
+    # loaded_mat = np.array(loaded_mat)
     loaded_mat = loaded_mat[:6]
+    # loaded_mat = loaded_mat[:12]
+    # loaded_mat = loaded_mat[:9285]
 
-    print(f"load_mat(): {path}.shape = {loaded_mat.shape}, carve = {(len(loaded_mat)%window_size)}")
+    # print(f"load_mat(): {path}.shape = {loaded_mat.shape}, carve = {(len(loaded_mat)%window_size)}")
 
     # Grab the relevant indices
     return_list = []
@@ -40,12 +42,14 @@ def load_mat(in_path: str, standardize: bool = False, channel_indices=None, wind
         triplets.append(curr)
         if len(triplets) == 3:
             # print(f"batch == {batch}")
+            triplets=np.array(triplets)
             # print(f"triplets == {triplets}")
+            print(f"triplets.shape == {triplets.shape}")
 
-            return_list.append(np.array(triplets))
+            return_list.append(triplets)
             # print(f"return_list == {return_list}")
             # print(f"return_list.shape == {return_list.shape}")
-            triplets.clear()
+            triplets = []
 
             # exit()
 
