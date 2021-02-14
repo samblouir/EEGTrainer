@@ -1,9 +1,40 @@
 import 'dart:js';
 
 import 'package:flutter/material.dart';
+import 'package:tflite/tflite.dart';
+// import 'package:tflite_flutter/tflite_flutter.dart';
+
+String my_main_str = "hello";
+var encoder;
+var decoder;
+
+Future<void> load_tflite() async {
+  // encoder = await Interpreter.fromAsset('assets/encoder.tflite');
+  // decoder = await Interpreter.fromAsset('assets/decoder.tflite');
+  encoder = await Tflite.loadModel(
+    model: "assets/encoder.tflite",
+  );
+  decoder = await Tflite.loadModel(
+    model: "assets/decoder.tflite",
+  );
+}
 
 void main() {
   runApp(MyApp());
+  load_tflite();
+
+  var a = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
+  var b = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
+  var c = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
+  var input = [a, b, c];
+
+  // var output = List(3 * 6).reshape([3, 6]);
+
+  // encoder.run(input, output);
+
+  // print(output);
+  // my_main_str = output.toString();
+  // my_main_str="yes";
 }
 
 class MyApp extends StatelessWidget {
@@ -48,7 +79,8 @@ class Page1 extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                child: Text('Begin Session'),
+                child: Text(my_main_str),
+                // child: Text('Begin Session'),
                 onPressed: () {
                   Navigator.of(context).push(_createRoute(0));
                 },
@@ -80,7 +112,6 @@ class Page1 extends StatelessWidget {
 }
 
 Route _createRoute(var int) {
-
   if (int == 0) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => SessionPage(),
