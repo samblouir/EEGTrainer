@@ -32,7 +32,7 @@ The data provided where electrode readings from both ADHD and control childrens.
 
 ![](readme/tr.png)
 
-As we can observe, there is a slight overfit after epoch ~50. The maximum training accuracy the model reached is ~80%. Even with 80% accuracy, the model is showing promising results with classification.
+As we can observe, there is a slight overfit after epoch ~60000. The maximum training accuracy the model reached is ~80%. Even with 80% accuracy, the model is showing promising results with classification.
 
 </div>
 
