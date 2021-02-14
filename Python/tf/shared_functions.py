@@ -39,7 +39,7 @@ def load_mat(in_path: str, standardize: bool = False, channel_indices=None, wind
         curr = np.array([row[indice] for indice in channel_indices])
         triplets.append(curr)
         if len(triplets) == 3:
-            # print(f"index == {index}")
+            # print(f"batch == {batch}")
             # print(f"triplets == {triplets}")
 
             return_list.append(np.array(triplets))

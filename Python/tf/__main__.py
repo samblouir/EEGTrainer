@@ -5,10 +5,11 @@ import os
 # os.system("python -m pip install -U sklearn tensorflow-addons tensorflow-probability")
 import string, scipy.io
 
-from Classes.AutoEncoder_2D import AutoEncoder_2D
+from Classes.AutoEncoder_2D import AutoEncoder_2D, make_decoder, make_encoder
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
+import tensorflow_addons as tfa
 # import torch
 
 from shared_functions import load_mat
@@ -36,29 +37,45 @@ def load_adhd_part2(index):
 
 
 # Multiprocessing for loading and processing the data faster
-adhd_part1_data = np.array(mp.Pool(mp.cpu_count()).map(load_adhd_part1, range(len(adhd_part1_paths))))
-adhd_part1_data = np.squeeze(adhd_part1_data)
-# adhd_part2_data = np.array(mp.Pool(mp.cpu_count()).map(load_adhd_part2, range(len(adhd_part2_paths))))
-# adhd_part2_data = np.squeeze(adhd_part2_data)
+adhd_part1_data = np.squeeze(np.array(mp.Pool(mp.cpu_count()).map(load_adhd_part1, range(len(adhd_part1_paths)))))
+adhd_part2_data = np.squeeze(np.array(mp.Pool(mp.cpu_count()).map(load_adhd_part2, range(len(adhd_part2_paths)))))
 
 # Print out the input_data for debugging
 print('\n\n\n')
-for index, line in enumerate(adhd_part1_data):
-    print(f"adhd_part1_data #{index}: {line}, shape: {line.shape}")
+for batch, line in enumerate(adhd_part1_data):
+    print(f"adhd_part1_data #{batch}: {line}, shape: {line.shape}")
     break
 
 print('\n\n')
 print(f"adhd_part1_data.shape: {adhd_part1_data.shape}")
+in_shape = (window_size, len(channel_indices))
 
-AE = AutoEncoder_2D(in_shape=(window_size, len(channel_indices),))
-AE.compile(AE.in_optimizer)
+encoder = make_encoder(in_shape=in_shape)
+decoder = make_decoder(in_shape=in_shape)
+lr_schedule = tfa.optimizers.ExponentialCyclicalLearningRate(1e-4, 1e-2, step_size=2000, gamma=0.96)
+in_optimizer = tfa.optimizers.LAMB(learning_rate=lr_schedule)
 
-tD = [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11]]
-tD = np.array(tD)
-tD = tf.convert_to_tensor(tD)
-AE.fit(tD)
-# adhd_part1_data = tf.data.Dataset.from_tensor_slices(adhd_part1_data).batch(4)
+AE = AutoEncoder_2D(encoder=encoder, decoder=decoder)
+AE.compile(in_optimizer)
 
+adhd_part1_data = tf.convert_to_tensor(adhd_part1_data, dtype=tf.int32)
+batch_size = 3
+
+
+@tf.function(experimental_compile=True)
+def train_loop(data, batch_size=3):
+    for batch in range(0, len(data), batch_size):
+        each = data[batch * batch_size:batch * batch_size + batch_size]
+        AE.train_step(each)
+
+
+epochs = 100000
+for epoch in range(epochs):
+    train_loop(adhd_part1_data, batch_size)
+    if epoch % 1000 == 0:
+        data = adhd_part1_data[0:batch_size]
+        loss_value = AE.get_loss(data)
+        print(f"current loss == {loss_value}")
 # AE.fit(adhd_part1_data)
 exit(0)
 for each in adhd_part1_data:

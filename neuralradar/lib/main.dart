@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blueGrey,
       ),
       home: Page1(),
+
       // home: MyHomePage(title: 'Neural Radar'),
     );
   }
@@ -39,28 +40,37 @@ class Page1 extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [Image.asset(
-            'assets/logo.png',
-          ),
-            Text('Neural Radar'),
+          children: [
+            Image.asset(
+              'assets/logo.png',
+            ),
             Text(''),
-            ElevatedButton(
-              child: Text('Start my session'),
-              onPressed: () {
-                Navigator.of(context).push(_createRoute());
-              },
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                child: Text('Begin Session'),
+                onPressed: () {
+                  Navigator.of(context).push(_createRoute(0));
+                },
+              ),
             ),
-            ElevatedButton(
-              child: Text('Settings'),
-              onPressed: () {
-                Navigator.of(context).push(_createRoute());
-              },
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                child: Text('Settings'),
+                onPressed: () {
+                  Navigator.of(context).push(_createRoute(1));
+                },
+              ),
             ),
-            ElevatedButton(
-              child: Text('Help'),
-              onPressed: () {
-                Navigator.of(context).push(_createRoute());
-              },
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                child: Text('Help'),
+                onPressed: () {
+                  Navigator.of(context).push(_createRoute(2));
+                },
+              ),
             ),
           ],
         ),
@@ -69,30 +79,94 @@ class Page1 extends StatelessWidget {
   }
 }
 
-Route _createRoute() {
-  return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => Page2(),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      var begin = Offset(0.0, 1);
-      var end = Offset.zero;
-      var curve = Curves.easeInOutQuart;
+Route _createRoute(var int) {
 
-      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+  if (int == 0) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => SessionPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1);
+        var end = Offset.zero;
+        var curve = Curves.easeInOutQuart;
 
-      return SlideTransition(
-        position: animation.drive(tween),
-        child: child,
-      );
-    },
-  );
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
+
+  if (int == 1) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => SettingsPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1);
+        var end = Offset.zero;
+        var curve = Curves.easeInOutQuart;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
+
+  if (int == 2) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => HelpPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1);
+        var end = Offset.zero;
+        var curve = Curves.easeInOutQuart;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
 }
 
-class Page2 extends StatelessWidget {
+class SessionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: Center(
-        child: Text('Page 2'),
+        child: Text('Session'),
+      ),
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: Text('Settings'),
+      ),
+    );
+  }
+}
+
+class HelpPage extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: Text('Help'),
       ),
     );
   }
