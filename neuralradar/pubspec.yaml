@@ -46,6 +46,8 @@ dev_dependencies:
 flutter:
   assets:
     - assets/logo.png
+    - assets/jetpack0.png
+    - assets/jetpack1.png
     - assets/encoder.tflite
     - assets/decoder.tflite
 

@@ -1,11 +1,13 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:js';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:tflite/tflite.dart';
 // import 'package:tflite_flutter/tflite_flutter.dart';
 
-String my_main_str = "hello";
+String my_main_str = "Begin a Session";
 var encoder;
 var decoder;
 
@@ -314,40 +316,298 @@ var inputs = [
   [-0.982349, -0.31082135, -0.9458946, 0.11128172, -0.4528015, 0.04029166],
 ];
 
+var delays = [250];
+
 void main() {
-  my_main_str = "Begin Session";
   runApp(MyApp());
-  // load_tflite();
 
-  // var a = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
-  // var b = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
-  // var c = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
-  // var input = [a, b, c];
-
-  // var output = List(3 * 6).reshape([3, 6]);
-
-  // encoder.run(input, output);
-
-  // print(output);
-  // my_main_str = output.toString();
-  // my_main_str="yes";
+  int addAmount = 10000;
+  for (int i = 2; i < 1 + addAmount; i++) delays.add(delays[0] * i);
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final appTitle = 'Neural Radar EEG Trainer';
     return MaterialApp(
-      title: 'Neural Radar',
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
-      ),
-      home: Page1(),
-
-      // home: MyHomePage(title: 'Neural Radar'),
+      title: appTitle,
+      home: MyHomePage(title: appTitle),
     );
   }
 }
+
+// The StatefulWidget's job is to take data and create a State class.
+// In this case, the widget takes a title, and creates a _MyHomePageState.
+class MyHomePage extends StatefulWidget {
+  final String title;
+
+  MyHomePage({Key key, this.title}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+var curr_est = 0;
+
+// The State class is responsible for two things: holding some data you can
+// update and building the UI using that data.
+class _MyHomePageState extends State<MyHomePage> {
+  // Whether the green box should be visible
+  bool _visible = true;
+
+  void start_session(BuildContext context) {
+    setState(() {
+      selected = true;
+    });
+
+    Future.delayed(Duration(milliseconds: 750), () {
+      setState(() {
+        _visible = false;
+      });
+    });
+
+    _delayedIncrementCounter();
+  }
+
+  void _delayedIncrementCounter() {
+    Future.delayed(Duration(milliseconds: 1000), () {
+      for (int i = 0; i < delays.length; i++) {
+        Future.delayed(Duration(milliseconds: delays[i]), () {
+          setState(() {
+            my_main_str = curr_est.toString();
+            curr_est = (curr_est + 1) % 28;
+          });
+        });
+      }
+      // sleep(Duration(milliseconds: delays[delays.length - 1]));
+    });
+  }
+
+  bool selected = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Column(
+        children: [
+          GestureDetector(
+            onTap: () {
+              selected = false;
+              _visible = true;
+            }, // handle your image tap here
+            child: Image.asset(
+              'assets/logo.png',
+            ),
+          ),
+          AnimatedContainer(
+            width: selected ? 800.0 : 0.1,
+            height: selected ? 400.0 : 0.1,
+            color: selected ? Colors.blue : Colors.white,
+            alignment:
+                selected ? Alignment.center : AlignmentDirectional.bottomEnd,
+            duration: Duration(seconds: 1),
+            curve: Curves.fastOutSlowIn,
+            child: AnimatedOpacity(
+              opacity: _visible ? 0.0 : 1.0,
+              duration: Duration(microseconds: 750),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("\nFocus Score:",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
+                      )),
+                  Text(handle_it(),
+                      style: TextStyle(
+                        fontSize: 40,
+                        color: Colors.grey[300],
+                      )),
+                  Text("\n\n"),
+                  Image.asset(
+                    'assets/jetpack0.png',
+                    height:100,
+                    width:100,
+
+                  ),
+                  Text("\n\n"),
+                  Text("Raw Electrode Voltages:",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.grey[200],
+                      )),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(read_input(0),
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.grey[200],
+                          )),
+                      Text(suffix),
+                      Text(sep),
+                      Text(read_input(1),
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.grey[200],
+                          )),
+                      Text(suffix),
+                      Text(sep),
+                      Text(read_input(2),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[200],
+                          )),
+                      Text(suffix,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[150],
+                          )),
+                      Text(sep),
+                      Text(read_input(3),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[200],
+                          )),
+                      Text(suffix),
+                      Text(sep),
+                      Text(read_input(4),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[200],
+                          )),
+                      Text(suffix),
+                      Text(sep),
+                      Text(read_input(5),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[200],
+                          )),
+                      Text(suffix),
+                      Text(sep),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          AnimatedOpacity(
+            opacity: _visible ? 1.0 : 0.0,
+            duration: Duration(microseconds: 2000),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(''),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      child: Text("Begin Session"),
+                      onPressed: () {
+                        start_session(context);
+                        // Navigator.of(context).push(_createRoute(1));
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      child: Text('History'),
+                      onPressed: () {
+                        Navigator.of(context).push(_createRoute(0));
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      child: Text('Settings'),
+                      onPressed: () {
+                        Navigator.of(context).push(_createRoute(2));
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      child: Text('Help'),
+                      onPressed: () {
+                        Navigator.of(context).push(_createRoute(2));
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      child: Text('Exit'),
+                      onPressed: () {
+                        Navigator.of(context).push(_createRoute(2));
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// void main() {
+//   my_main_str = "Begin Session";
+//   runApp(MyApp());
+// }
+//
+// class MyHomePage extends StatefulWidget {
+//   final String title;
+//
+//   MyHomePage({Key key, this.title}) : super(key: key);
+//
+//   @override
+//   _MyHomePageState createState() => _MyHomePageState();
+// }
+//
+// class _MyHomePageState extends State<MyHomePage> {
+//   // Whether the green box should be visible.
+//   bool _visible = true;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     // The green box goes here with some other Widgets.
+//   }
+// }
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     final appTitle = 'Opacity Demo';
+//     return MaterialApp(
+//       title: appTitle,
+//       home: MyHomePage(title: appTitle),
+//     );
+//   }
+// }
+
+// class MyApp extends StatelessWidget {
+//   // This widget is the root of your application.
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Neural Radar',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blueGrey,
+//       ),
+//       home: Page1(),
+//
+//       // home: MyHomePage(title: 'Neural Radar'),
+//     );
+//   }
+// }
 
 // class MyHomePage extends StatefulWidget {
 //   MyHomePage({Key key, this.title}) : super(key: key);
@@ -444,25 +704,6 @@ Route _createRoute(var int) {
     );
   }
 
-  if (int == 1) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => SessionPage(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = Offset(0.0, 1);
-        var end = Offset.zero;
-        var curve = Curves.easeInOutQuart;
-
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-    );
-  }
-
   if (int == 2) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => SettingsPage(),
@@ -502,78 +743,55 @@ Route _createRoute(var int) {
   }
 }
 
-var curr_est = 0;
+var smooth_value = 100;
+var smooth_value_two = 100;
+var last_ratio = 1.0;
+var rng = new Random();
+var imgscale = 1.0;
+String handle_it() {
+  // var return_ratio = ((last_ratio) * smooth_value_two + ratios[curr_est]) /
+  //     (smooth_value_two - 1);
+  // var return_ratio = (last_ratio * smooth_value + ratios[curr_est]) / (smooth_value - 1);
+  // last_ratio=return_ratio;
 
-Future<String> get_next_estimate() async {
-  incr();
-  curr_est += 1;
-  curr_est %= ratios.length;
-  return ratios[curr_est].toString();
+  // return_ratio*=1000000;
+  // return_ratio%=100;
+  if (rng.nextInt(1) > 0 || last_ratio < 10)
+  last_ratio += rng.nextDouble();
+  else
+    last_ratio -= rng.nextDouble();
+
+  imgscale = last_ratio%11;
+  return last_ratio.toStringAsFixed(0);
 }
 
+var curr_vals = [
+  -0.10552577,
+  -2.5709915,
+  0.04029166,
+  -2.2870312,
+  0.18227178,
+  -2.0049896
+];
 
 String read_input(var index) {
   var curr_read = inputs[curr_est].toString();
 
-  var read_values = curr_read.split(" ")[index].replaceFirst("[", "").replaceFirst("]", "");
-  read_values=read_values.replaceFirst(",", "");
-  
-  read_values = read_values.toString();
-  read_values = read_values.substring(0,4);
+  var read_values =
+      curr_read.split(" ")[index].replaceFirst("[", "").replaceFirst("]", "");
+
+  read_values = read_values.replaceFirst(",", "");
+  var parsed = double.parse(read_values);
+  parsed = parsed.abs();
+  parsed = (curr_vals[index] * smooth_value + parsed) / (smooth_value - 1);
+
+  read_values = parsed.toStringAsFixed(2);
   return read_values;
 }
 
-Future<void> incr() async {
-  sleep(Duration(seconds: 2));
-    curr_est++;
-}
-
-var focus_score="0";
-var sep="\t";
-var suffix=" mV";
-class SessionPage extends StatelessWidget {
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-
-            Text("\nFocus Score:"),
-            Text((focus_score)),
-            Text("\n Raw Electrode Voltages:"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text((read_input(0))),
-                Text(suffix),
-                Text(sep),
-                Text((read_input(1))),
-                Text(suffix),
-                Text(sep),
-                Text((read_input(2))),
-                Text(suffix),
-                Text(sep),
-                Text((read_input(3))),
-                Text(suffix),
-                Text(sep),
-                Text((read_input(4))),
-                Text(suffix),
-                Text(sep),
-                Text((read_input(5))),
-                Text(suffix),
-                Text(sep),get_next_estimate(),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+var focus_score = "0";
+var sep = "\t";
+var suffix = " mV";
 
 class HistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
