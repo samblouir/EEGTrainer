@@ -22,8 +22,8 @@ environment:
 
 dependencies:
   tflite: ">0.0.0"
-  tflite_flutter: ">0.0.0"
-  tflite_flutter_helper: ">0.0.0"
+#  tflite_flutter: ">0.0.0"
+#  tflite_flutter_helper: ">0.0.0"
 
   flutter:
     sdk: flutter

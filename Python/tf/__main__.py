@@ -14,7 +14,7 @@ import tensorflow_addons as tfa
 
 from shared_functions import load_mat
 
-convert_model = True
+convert_model = False
 if convert_model:
     encoder_converter = tf.lite.TFLiteConverter.from_saved_model("/EEGTrainer/saved_models/encoder_2D")
     decoder_converter = tf.lite.TFLiteConverter.from_saved_model("/EEGTrainer/saved_models/decoder_2D")
@@ -23,7 +23,7 @@ if convert_model:
     with open('/EEGTrainer/saved_models/encoder.tflite', 'wb') as f:
         f.write(encoder_model)
     with open('/EEGTrainer/saved_models/decoder.tflite', 'wb') as f:
-        f.write(encoder_model)
+        f.write(decoder_model)
     print('\nFinished saving models!')
     exit()
 
@@ -38,7 +38,7 @@ control_part1_paths = [control_part1_path + path for path in os.listdir(control_
 standardize = False
 channel_indices = [3, 4, 5, 6, 13, 14]
 window_size = 3  # gives us a 2D array
-batch_size = 30
+batch_size = 20
 
 
 # Quick and dirty copy-pasted functions
@@ -88,7 +88,7 @@ decoder = make_decoder(in_shape=in_shape)
 encoder.summary()
 decoder.summary()
 
-lr_schedule = tfa.optimizers.ExponentialCyclicalLearningRate(1e-4, 1e-2, step_size=2000, gamma=0.96)
+lr_schedule = tfa.optimizers.ExponentialCyclicalLearningRate(1e-4, 1e-3, step_size=2000, gamma=0.96)
 in_optimizer = tfa.optimizers.LAMB(learning_rate=lr_schedule)
 
 AE = AutoEncoder_2D(encoder=encoder, decoder=decoder)
@@ -106,7 +106,7 @@ def train_loop(data, batch_size=3):
 
 
 print('Training...')
-epochs = 10000
+epochs = 10000  # 00
 for epoch in range(epochs):
     train_loop(adhd_part1_data, batch_size=batch_size)
     if epoch % 1000 == 0:
@@ -125,12 +125,62 @@ for epoch in range(epochs):
             sep='', end='', flush=True,
         )
 
-        if adhd_loss_value < 0.25:
+        if adhd_loss_value < 0.4 and control_loss_value > adhd_loss_value * 2.5:
             print('\n\n')
             break
 
+print('\nFinished training!')
+
+# Saves models
+print('\nSaving models...')
 AE.encoder.save("/EEGTrainer/saved_models/encoder_2D")
 AE.decoder.save("/EEGTrainer/saved_models/decoder_2D")
+encoder_converter = tf.lite.TFLiteConverter.from_saved_model("/EEGTrainer/saved_models/encoder_2D")
+decoder_converter = tf.lite.TFLiteConverter.from_saved_model("/EEGTrainer/saved_models/decoder_2D")
+encoder_model = encoder_converter.convert()
+decoder_model = decoder_converter.convert()
+with open('/EEGTrainer/saved_models/encoder.tflite', 'wb') as f:
+    f.write(encoder_model)
+with open('/EEGTrainer/saved_models/decoder.tflite', 'wb') as f:
+    f.write(decoder_model)
 
-print('\nFinished training!')
-exit(0)
+# Save losses per triplet line
+adhd_f = open("/EEGTrainer/adhd_reconstructed.txt", "w")
+control_f = open("/EEGTrainer/control_reconstructed.txt", "w")
+test_f = open("EEGTrainer/original_lines.txt", "w")
+contest_f = open("EEGTrainer/original_lines_control.txt", "w")
+ratio_f = open("EEGTrainer/ratios.txt", "w")
+
+adhd_write_lines = []
+control_write_lines = []
+
+for index, row in enumerate(adhd_part1_data):
+
+    control_data = control_part1_data[index:index + 3]
+    control_loss_value = np.array(AE.get_loss(control_data))
+    control_write_lines.append(str(control_loss_value))
+    control_write_lines.append("\n")
+
+    adhd_data = adhd_part1_data[index:index + 3]
+    adhd_loss_value = np.array(AE.get_loss(adhd_data))
+    adhd_write_lines.append(str(adhd_loss_value))
+    adhd_write_lines.append("\n")
+
+    ratio_f.write(f"{control_loss_value / adhd_loss_value:1.2f}\n")
+
+    test_data = list(np.squeeze(np.array(adhd_data)))
+    curr_line = []
+    for elem in test_data:
+        for more in elem:
+            if type(more) != np.float32 and len(more) > 1:
+                test_f.write(str(more) + "\n")
+
+    cont_data = list(np.squeeze(np.array(control_data)))
+    curr_line = []
+    for elem in cont_data:
+        for more in elem:
+            if type(more) != np.float32 and len(more) > 1:
+                contest_f.write(str(more) + "\n")
+
+adhd_f.writelines(adhd_write_lines)
+control_f.writelines(control_write_lines)

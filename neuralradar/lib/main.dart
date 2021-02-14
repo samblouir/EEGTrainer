@@ -8,7 +8,7 @@ String my_main_str = "hello";
 var encoder;
 var decoder;
 
-Future<void> load_tflite() async {
+load_tflite() async {
   // encoder = await Interpreter.fromAsset('assets/encoder.tflite');
   // decoder = await Interpreter.fromAsset('assets/decoder.tflite');
   encoder = await Tflite.loadModel(
@@ -19,7 +19,41 @@ Future<void> load_tflite() async {
   );
 }
 
+var ratios = {
+0.22,
+0.33,
+0.21,
+0.16,
+7.08,
+7.63,
+6.76,
+1.51,
+13.40,
+18.92,
+53.78,
+31.94,
+5.66,
+2.20,
+2.18,
+1.63,
+4.14,
+3.70,
+4.09,
+0.63,
+0.56,
+0.47,
+0.76,
+0.72,
+0.59,
+2.00,
+2.17,
+1.25,
+0.64,
+0.28,
+};
+
 void main() {
+  my_main_str = "Begin Session";
   runApp(MyApp());
   load_tflite();
 
@@ -80,7 +114,6 @@ class Page1 extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 child: Text(my_main_str),
-                // child: Text('Begin Session'),
                 onPressed: () {
                   Navigator.of(context).push(_createRoute(0));
                 },
@@ -121,7 +154,7 @@ Route _createRoute(var int) {
         var curve = Curves.easeInOutQuart;
 
         var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -140,7 +173,7 @@ Route _createRoute(var int) {
         var curve = Curves.easeInOutQuart;
 
         var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -159,7 +192,7 @@ Route _createRoute(var int) {
         var curve = Curves.easeInOutQuart;
 
         var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
